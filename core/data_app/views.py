@@ -7,39 +7,28 @@ import json
 #     return render(request, 'data_app/dashboard.html')
 
 def dashboard(request):
-    # Fetch data from Demography model
+    # Fetch all data from the Demography model
     demography_df = pd.DataFrame.from_records(Demography.objects.all().values())
 
-    # Group by year_month and direction, summing estimates
-    grouped = demography_df.groupby(['year_month', 'direction'])['estimate'].sum().unstack(fill_value=0).reset_index()
+    # Split year_month into separate year and month columns
+    demography_df['year'] = demography_df['year_month'].str[:4]  # Extract year
+    demography_df['month'] = demography_df['year_month'].str[5:7]  # Extract month
 
-    # Prepare data for Chart.js
-    chart_data = {
-        'labels': grouped['year_month'].tolist(),  # X-axis (time)
-        'datasets': [
-            {
-                'label': 'Arrivals',
-                'data': grouped['Arrivals'].tolist(),  # Y-axis data for arrivals
-                'borderColor': 'rgba(75, 192, 192, 1)',
-                'backgroundColor': 'rgba(75, 192, 192, 0.2)',
-                'fill': False
-            },
-            {
-                'label': 'Departures',
-                'data': grouped['Departures'].tolist(),  # Y-axis data for departures
-                'borderColor': 'rgba(255, 99, 132, 1)',
-                'backgroundColor': 'rgba(255, 99, 132, 0.2)',
-                'fill': False
-            },
-        ]
+    # Create a dictionary with all the data to send to the frontend
+    dataset = {
+        'year_month': demography_df['year_month'].tolist(),
+        'year': demography_df['year'].tolist(),
+        'month': demography_df['month'].tolist(),
+        'direction': demography_df['direction'].tolist(),
+        'estimate': demography_df['estimate'].tolist(),
+        'gender': demography_df['gender'].tolist(),
+        'age_group': demography_df['age_group'].tolist(),
+        'status': demography_df['status'].tolist(),
     }
 
-    # Pass the data as JSON to the template
-    context = {
-        'chart_data': json.dumps(chart_data),  # Convert to JSON for Chart.js
-    }
+    return render(request, 'data_app/dashboard.html', {'dataset': json.dumps(dataset)})
 
-    return render(request, 'data_app/dashboard.html', context)
+
 
 def data_display(request):
 

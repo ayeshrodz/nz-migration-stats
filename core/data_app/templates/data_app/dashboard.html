@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-  <div class="container mt-4">
-    <h1 class="mb-4">Dashboard</h1>
-    <!-- Date Range Controls -->
+  <div class="container mt-2">
+    <h1 class="mb-4 text-center">New Zealand Migration Dashboard</h1>
+    <br />
+    <!-- Filter Controls -->
     <div class="row mb-4">
       <div class="col-md-5">
         <label for="startDate" class="form-label">Start Date</label>
@@ -25,54 +26,116 @@
       </div>
     </div>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // Get initial chart data from the template
-    const chartData = JSON.parse('{{ chart_data|escapejs }}');
+    const dataset = JSON.parse('{{ dataset|escapejs }}');
 
     // Initialize the chart
     const ctx = document.getElementById('lineChart').getContext('2d');
-    const lineChart = new Chart(ctx, {
-        type: 'line',
-        data: chartData,
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top', // Position of the legend
-                }
-            },
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Year-Month',
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Estimate',
-                    }
-                }
-            }
-        }
-    });
+    let lineChart = null;
 
-    // Filter Button Click Event
+    const plotGraph = (data, startDate, endDate) => {
+      // Filter data by the selected date range
+      const filteredIndices = data.year_month
+          .map((ym, index) => (ym >= startDate && ym <= endDate ? index : null))
+          .filter(index => index !== null);
+  
+      const filteredData = {
+          year_month: filteredIndices.map(i => data.year_month[i]),
+          direction: filteredIndices.map(i => data.direction[i]),
+          estimate: filteredIndices.map(i => data.estimate[i]),
+      };
+  
+      // Aggregate data for arrivals and departures
+      const arrivals = {};
+      const departures = {};
+      filteredData.year_month.forEach((ym, i) => {
+          if (!arrivals[ym]) arrivals[ym] = 0;
+          if (!departures[ym]) departures[ym] = 0;
+          if (filteredData.direction[i] === 'Arrivals') arrivals[ym] += filteredData.estimate[i];
+          if (filteredData.direction[i] === 'Departures') departures[ym] += filteredData.estimate[i];
+      });
+  
+      const labels = Object.keys(arrivals).sort();
+      const arrivalData = labels.map(ym => arrivals[ym]);
+      const departureData = labels.map(ym => departures[ym]);
+  
+      // Create or update the chart
+      if (lineChart) {
+          lineChart.data.labels = labels; // year_month for tooltips
+          lineChart.data.datasets[0].data = arrivalData;
+          lineChart.data.datasets[1].data = departureData;
+          lineChart.update();
+      } else {
+          lineChart = new Chart(ctx, {
+              type: 'line',
+              data: {
+                  labels: labels, // year_month for tooltips
+                  datasets: [
+                      {
+                          label: 'Arrivals',
+                          data: arrivalData,
+                          borderColor: 'rgba(75, 192, 192, 1)',
+                          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                          fill: false,
+                      },
+                      {
+                          label: 'Departures',
+                          data: departureData,
+                          borderColor: 'rgba(255, 99, 132, 1)',
+                          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                          fill: false,
+                      },
+                  ],
+              },
+              options: {
+                  responsive: true,
+                  plugins: {
+                      legend: {
+                          position: 'top',
+                      },
+                      tooltip: {
+                          callbacks: {
+                              title: (tooltipItems) => {
+                                  // Return the corresponding year_month for the hovered point
+                                  return tooltipItems[0].label;
+                              },
+                              label: (tooltipItem) => {
+                                  // Customize the value displayed in the tooltip
+                                  const value = tooltipItem.raw;
+                                  return `${tooltipItem.dataset.label}: ${value.toLocaleString()}`;
+                              },
+                          },
+                      },
+                  },
+                  scales: {
+                      x: {
+                          title: {
+                              display: true,
+                              text: labels.length <= 12 ? 'Month' : 'Year',
+                          },
+                      },
+                      y: {
+                          title: {
+                              display: true,
+                              text: 'Estimate',
+                          },
+                      },
+                  },
+              },
+          });
+      }
+  };
+  
+
+    // Initial plot with full dataset
+    plotGraph(dataset, '2001-01', '2024-01');
+
+    // Filter button click event
     document.getElementById('filterButton').addEventListener('click', () => {
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
-
-        // Fetch filtered data from the server
-        fetch(`/dashboard/filter?start_date=${startDate}&end_date=${endDate}`)
-            .then(response => response.json())
-            .then(filteredData => {
-                // Update the chart with new data
-                lineChart.data.labels = filteredData.labels;
-                lineChart.data.datasets[0].data = filteredData.datasets[0].data; // Arrivals
-                lineChart.data.datasets[1].data = filteredData.datasets[1].data; // Departures
-                lineChart.update();
-            });
+        plotGraph(dataset, startDate, endDate);
     });
   </script>
 {% endblock %}
