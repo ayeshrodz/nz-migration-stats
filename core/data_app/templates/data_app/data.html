@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}
+    Data Display
+{% endblock title %}
+{% block extra_css %}
+    <style>
+        .asteriskField {
+        display: none;
+        }
+    </style>
+{% endblock extra_css %}
+{% block content %}
+    <div class="container mt-4">
+        <h1 class="mb-4">{{ model_name }} Data</h1>
+        <!-- Data Table Section -->
+        <table id="data-table" class="table table-striped">
+            <thead>
+                <tr>
+                    {% if table_data|length > 0 %}
+                        {% for key in table_data.0.keys %}<th>{{ key|title }}</th>{% endfor %}
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in table_data %}
+                    <tr>
+                        {% for value in record.values %}<td>{{ value }}</td>{% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock content %}
+{% block extra_js %}
+    <script>
+    $(document).ready(function () {
+        $('#data-table').DataTable({
+            paging: true,       // Enable pagination
+            searching: true,    // Enable search box
+            ordering: true,     // Enable column sorting
+            info: true,         // Show table information
+            pageLength: 10,     // Default number of rows per page
+            lengthMenu: [5, 10, 25, 50, 100],  // Options for rows per page
+            language: {
+                paginate: {
+                    previous: "Previous",
+                    next: "Next"
+                },
+                lengthMenu: "Show _MENU_ entries",
+                info: "Showing _START_ to _END_ of _TOTAL_ entries"
+            },
+            order: [[0, "desc"]],  // Default sorting on the first column (ID)
+        });
+    });
+    </script>
+{% endblock extra_js %}

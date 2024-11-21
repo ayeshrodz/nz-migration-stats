@@ -10,14 +10,14 @@ demography_df = pd.read_csv(demography_file)
 visa_country_df = pd.read_csv(visa_country_file)
 
 # Define the SQLite database name
-db_name = './database/datasets.db'
+db_name = './core/db.sqlite3'
 
 # Create an SQLite connection
 conn = sqlite3.connect(db_name)
 
 # Save the dataframes to the SQLite database
-demography_df.to_sql('demography', conn, if_exists='replace', index=False)
-visa_country_df.to_sql('visa_country', conn, if_exists='replace', index=False)
+demography_df.to_sql('Demography', conn, if_exists='replace', index=False)
+visa_country_df.to_sql('visacountry', conn, if_exists='replace', index=False)
 
 # Close the connection
 conn.close()
