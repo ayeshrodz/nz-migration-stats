@@ -26,7 +26,11 @@ def dashboard(request):
         'status': demography_df['status'].tolist(),
     }
 
-    return render(request, 'data_app/dashboard.html', {'dataset': json.dumps(dataset)})
+    context = {
+        "dataset": json.dumps(dataset)  # Convert dataset to a valid JSON string
+    }
+
+    return render(request, 'data_app/base_dashboard.html', context)
 
 
 
