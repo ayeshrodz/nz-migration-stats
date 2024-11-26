@@ -1,0 +1,29 @@
+.card.bg-primary {
+    background-color: rgba(135, 206, 235, 1) !important; /* Light blue */
+    color: #007bff; /* Standard Bootstrap primary color for text */
+  }
+  
+  .card.bg-danger {
+    background-color: rgba(255, 99, 132, 1) !important; /* Light red */
+    color: #dc3545; /* Standard Bootstrap danger color for text */
+  }
+  
+  .card.bg-success {
+    background-color: rgba(75, 192, 192, 1) !important; /* Light green */
+    color: #28a745; /* Standard Bootstrap success color for text */
+  }
+  
+  .card.bg-info {
+    background-color: rgba(54, 162, 235, 1) !important; /* Light cyan */
+    color: #17a2b8; /* Standard Bootstrap info color for text */
+  }
+  
+  .card {
+    text-align: center;
+    font-size: 1.2em;
+  }
+  .card .card-text {
+    font-size: 1.8em;
+    font-weight: bold;
+  }
+  

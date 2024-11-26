@@ -27,6 +27,29 @@ const filterDataset = (data, filters) => {
   };
 };
 
+// --- Function to Update Dashboard Cards ---
+const updateDashboardCards = (filteredData) => {
+  const totalArrivals = filteredData.estimate
+    .filter((_, i) => filteredData.direction[i] === "Arrivals")
+    .reduce((sum, val) => sum + val, 0);
+
+  const totalDepartures = filteredData.estimate
+    .filter((_, i) => filteredData.direction[i] === "Departures")
+    .reduce((sum, val) => sum + val, 0);
+
+  const netMigration = totalArrivals - totalDepartures;
+  const averageMigration =
+    filteredData.estimate.length > 0
+      ? (totalArrivals + totalDepartures) / filteredData.estimate.length
+      : 0;
+
+  // Update the card values dynamically
+  document.getElementById("totalArrivals").textContent = totalArrivals.toLocaleString();
+  document.getElementById("totalDepartures").textContent = totalDepartures.toLocaleString();
+  document.getElementById("netMigration").textContent = netMigration.toLocaleString();
+  document.getElementById("averageMigration").textContent = averageMigration.toFixed(2);
+};
+
 // --- Line Chart Function ---
 const plotLineChart = (ctx, data) => {
   const arrivals = {};
@@ -42,16 +65,6 @@ const plotLineChart = (ctx, data) => {
   const arrivalData = labels.map((ym) => arrivals[ym]);
   const departureData = labels.map((ym) => departures[ym]);
 
-  // Create gradient for "Arrivals"
-  const gradientArrival = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
-  gradientArrival.addColorStop(0, "rgba(75, 192, 192, 0.8)"); // Light teal at the top
-  gradientArrival.addColorStop(1, "rgba(75, 192, 192, 0.1)");   // Transparent at the bottom
-
-  // Create gradient for "Departures"
-  const gradientDeparture = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
-  gradientDeparture.addColorStop(0, "rgba(255, 99, 132, 0.8)"); // Light pink at the top
-  gradientDeparture.addColorStop(1, "rgba(255, 99, 132, 0.1)");   // Transparent at the bottom
-
   return new Chart(ctx, {
     type: "line",
     data: {
@@ -61,17 +74,17 @@ const plotLineChart = (ctx, data) => {
           label: "Arrivals",
           data: arrivalData,
           borderColor: "rgba(75, 192, 192, 1)",
-          backgroundColor: gradientArrival,
+          backgroundColor: "rgba(75, 192, 192, 0.1)",
           fill: true,
-          tension: 0.5,
+          tension: 0.4,
         },
         {
           label: "Departures",
           data: departureData,
           borderColor: "rgba(255, 99, 132, 1)",
-          backgroundColor: gradientDeparture,
+          backgroundColor: "rgba(255, 99, 132, 0.1)",
           fill: true,
-          tension: 0.5,
+          tension: 0.4,
         },
       ],
     },
@@ -79,33 +92,10 @@ const plotLineChart = (ctx, data) => {
       responsive: true,
       plugins: {
         legend: { position: "top" },
-        tooltip: {
-          callbacks: {
-            title: (tooltipItems) => tooltipItems[0].label,
-            label: (tooltipItem) =>
-              `${tooltipItem.dataset.label}: ${tooltipItem.raw.toLocaleString()}`,
-          },
-        },
       },
       scales: {
-        x: {
-          title: { display: true, text: "Month" },
-          ticks: {
-            callback: function (value, index, values) {
-
-              const dateParts = this.getLabelForValue(value).split("-");
-              const month = dateParts[1]; // Extract month (e.g., "01", "02")
-              const year = dateParts[0]; // Extract year
-              const date = new Date(`${year}-${month}-01`); // Construct a Date object
-              return new Intl.DateTimeFormat("en", { month: "short", year: "numeric" }).format(date); // Format to "Jan", "Feb", etc.
-
-              return this.getLabelForValue(value); // Show full label otherwise
-            },
-          },
-        },
-        y: {
-          title: { display: true, text: "Estimate" },
-        },
+        x: { title: { display: true, text: "Month" } },
+        y: { title: { display: true, text: "Estimate" } },
       },
     },
   });
@@ -138,15 +128,15 @@ const plotBarChart = (ctx, data) => {
         {
           label: "Arrivals",
           data: barArrivals,
-          borderColor: "rgba(75, 192, 192, 1)",
           backgroundColor: "rgba(75, 192, 192, 0.8)",
+          borderColor: "rgba(75, 192, 192, 1)",
           borderWidth: 1,
         },
         {
           label: "Departures",
           data: barDepartures,
-          borderColor: "rgba(255, 99, 132, 1)",
           backgroundColor: "rgba(255, 99, 132, 0.8)",
+          borderColor: "rgba(255, 99, 132, 1)",
           borderWidth: 1,
         },
       ],
@@ -154,25 +144,29 @@ const plotBarChart = (ctx, data) => {
     options: {
       responsive: true,
       indexAxis: "y",
-      plugins: { legend: { position: "top" } },
+      plugins: {
+        legend: { position: "top" },
+      },
       scales: {
-        x: { stacked: true, title: { display: true, text: "Age Group" } },
-        y: { stacked: true, title: { display: true, text: "Total Estimate" } },
+        x: {
+          stacked: true, // Ensures the bars are stacked horizontally
+          title: { display: true, text: "Age Group" },
+        },
+        y: {
+          stacked: true, // Ensures the bars are stacked vertically
+          title: { display: true, text: "Total Estimate" },
+        },
       },
     },
   });
 };
 
+
 // --- Chart Manager ---
 const chartManager = {
-  charts: [], // Store references to all chart instances
+  charts: [],
   addChart(chartInstance) {
     this.charts.push(chartInstance);
-  },
-  updateCharts(filteredData) {
-    this.charts.forEach((chart) => {
-      chart.update(filteredData);
-    });
   },
   destroyAllCharts() {
     this.charts.forEach((chart) => chart.destroy());
@@ -192,27 +186,26 @@ const initializeCharts = (dataset) => {
 
   const filteredData = filterDataset(dataset, filters);
 
-  // Initialize line chart
+  // Initialize charts
   const lineChartCtx = document.getElementById("lineChart").getContext("2d");
-  const lineChart = plotLineChart(lineChartCtx, filteredData);
-  chartManager.addChart(lineChart);
+  chartManager.addChart(plotLineChart(lineChartCtx, filteredData));
 
-  // Initialize bar chart
   const barChartCtx = document.getElementById("stackedBarChart").getContext("2d");
-  const barChart = plotBarChart(barChartCtx, filteredData);
-  chartManager.addChart(barChart);
+  chartManager.addChart(plotBarChart(barChartCtx, filteredData));
+
+  // Update dashboard cards
+  updateDashboardCards(filteredData);
 };
 
 // --- Handle Filter Changes ---
 document.getElementById("filterButton").addEventListener("click", () => {
-  const startDate = document.getElementById("startDate").value;
-  const endDate = document.getElementById("endDate").value;
-  const selectedGender = document.getElementById("genderFilter").value;
-  const selectedAgeGroup = document.getElementById("ageGroupFilter").value;
-  const selectedDirection = document.getElementById("directionFilter").value;
-
-  const filters = { startDate, endDate, selectedGender, selectedAgeGroup, selectedDirection };
-  console.log("Applying Filters:", filters);
+  const filters = {
+    startDate: document.getElementById("startDate").value,
+    endDate: document.getElementById("endDate").value,
+    selectedGender: document.getElementById("genderFilter").value,
+    selectedAgeGroup: document.getElementById("ageGroupFilter").value,
+    selectedDirection: document.getElementById("directionFilter").value,
+  };
 
   const filteredData = filterDataset(dataset, filters);
 
@@ -221,12 +214,13 @@ document.getElementById("filterButton").addEventListener("click", () => {
 
   // Recreate charts with the new filtered data
   const lineChartCtx = document.getElementById("lineChart").getContext("2d");
-  const lineChart = plotLineChart(lineChartCtx, filteredData);
-  chartManager.addChart(lineChart);
+  chartManager.addChart(plotLineChart(lineChartCtx, filteredData));
 
   const barChartCtx = document.getElementById("stackedBarChart").getContext("2d");
-  const barChart = plotBarChart(barChartCtx, filteredData);
-  chartManager.addChart(barChart);
+  chartManager.addChart(plotBarChart(barChartCtx, filteredData));
+
+  // Update dashboard cards
+  updateDashboardCards(filteredData);
 });
 
 // --- Initial Render ---
