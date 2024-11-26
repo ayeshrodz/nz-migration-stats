@@ -192,16 +192,16 @@ const plotGenderPieChart = (ctx, data) => {
         {
           data: chartData,
           backgroundColor: [
-            "rgba(54, 162, 235, 0.8)", // Light blue for Male Arrivals
-            "rgba(54, 162, 235, 0.5)", // Dark blue for Male Departures
-            "rgba(255, 99, 132, 0.8)", // Light pink for Female Arrivals
-            "rgba(255, 99, 132, 0.5)", // Dark pink for Female Departures
+            "rgba(75, 192, 192, 0.8)", // Green for Male Arrivals
+            "rgba(255, 99, 132, 0.8)", // Rose for Male Departures
+            "rgba(75, 192, 192, 0.4)", // Light Green for Female Arrivals
+            "rgba(255, 99, 132, 0.4)", // Light Rose for Female Departures
           ],
           borderColor: [
-            "rgba(54, 162, 235, 1)",
-            "rgba(54, 162, 235, 1)",
-            "rgba(255, 99, 132, 1)",
-            "rgba(255, 99, 132, 1)",
+            "rgba(75, 192, 192, 1)", // Green for Male Arrivals
+            "rgba(255, 99, 132, 1)", // Rose for Male Departures
+            "rgba(75, 192, 192, 1)", // Light Green for Female Arrivals
+            "rgba(255, 99, 132, 1)", // Light Rose for Female Departures
           ],
           borderWidth: 1,
         },
