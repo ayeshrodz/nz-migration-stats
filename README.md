@@ -11,7 +11,7 @@ Special thanks and credit to **Dr. Farhad Mehdipour** for his invaluable guidanc
 ## Live Production Deployment
 The New Zealand Migration Dashboard is already live and accessible in production. You can view the dashboard at the following URL: [New Zealand Migration Dashboard](https://nz-migration-dashboard-fecqhwd0ezhnhcdk.australiasoutheast-01.azurewebsites.net/). on Azure. 
 
-[Dashboard UI](data/dashboard_ui.png)
+[Dashboard UI](https://github.com/ayeshrodz/nz-migration-stats/blob/main/core/data/dashboard_ui.png)
 
 This deployment is hosted on **Microsoft Azure** and leverages a CI/CD pipeline established between GitHub and Azure. With this setup, every push to the GitHub repository's main branch triggers an automated deployment to Azure, ensuring that the live dashboard is always up to date with the latest changes in the codebase. This pipeline streamlines development and deployment, making the process efficient and reliable.
 
