@@ -30,6 +30,23 @@
     font-weight: bold;
   }
 
-  #pie-charts .card-body canvas {
-    height: 50px !important; /* Adjust height as per your preference */
+  #genderSummary {
+    font-size: 0.85rem; /* Adjust the font size as needed */
+    line-height: 1.2; /* Adjust line spacing for better readability */
   }
+
+  #netMigrationPercentageText {
+    font-size: 0.85rem; /* Adjust the font size as needed */
+    line-height: 1.2; /* Adjust line spacing for better readability */
+  }
+
+  .text-green {
+    color: green;
+    font-weight: bold;
+  }
+  
+  .text-red {
+    color: red;
+    font-weight: bold;
+  }
+  

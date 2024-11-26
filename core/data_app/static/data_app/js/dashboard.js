@@ -24,6 +24,7 @@ const filterDataset = (data, filters) => {
     direction: filteredIndices.map((i) => data.direction[i]),
     estimate: filteredIndices.map((i) => data.estimate[i]),
     age_group: filteredIndices.map((i) => data.age_group[i]),
+    gender: filteredIndices.map((i) => data.gender[i]),
   };
 };
 
@@ -73,6 +74,22 @@ const plotMigrationDirectionDoughnutChart = (ctx, data) => {
 
   const total = Object.values(directionStats).reduce((sum, val) => sum + val, 0);
 
+  // Calculate net migration percentage (+/-)
+  const netMigrationPercentage = (
+    ((directionStats.Arrivals - directionStats.Departures) / total) *
+    100
+  ).toFixed(1);
+
+  // Update the net migration percentage dynamically
+  const statsValueElement = document.getElementById("netMigrationPercentage");
+  if (statsValueElement) {
+    statsValueElement.textContent = `${netMigrationPercentage > 0 ? "+" : ""
+      }${netMigrationPercentage}%`;
+
+    // Apply dynamic styles for green/red based on the percentage value
+    statsValueElement.style.color = netMigrationPercentage > 0 ? "green" : "red";
+  }
+
   return new Chart(ctx, {
     type: "doughnut",
     data: {
@@ -107,6 +124,104 @@ const plotMigrationDirectionDoughnutChart = (ctx, data) => {
             const percentage = ((value / total) * 100).toFixed(1); // Calculate percentage
             return `${percentage}%`; // Display percentage inside the chart
           },
+          font: {
+            weight: "bold",
+          },
+        },
+      },
+    },
+    plugins: [ChartDataLabels], // Enable DataLabels plugin
+  });
+};
+
+
+
+const plotGenderPieChart = (ctx, data) => {
+  // Aggregate total estimates for arrivals and departures by gender
+  const genderArrivals = {
+    Male: 0,
+    Female: 0,
+  };
+
+  const genderDepartures = {
+    Male: 0,
+    Female: 0,
+  };
+
+  data.gender.forEach((gender, i) => {
+    if (gender === "Male" || gender === "Female") {
+      if (data.direction[i] === "Arrivals") {
+        genderArrivals[gender] += data.estimate[i];
+      } else if (data.direction[i] === "Departures") {
+        genderDepartures[gender] += data.estimate[i];
+      }
+    }
+  });
+
+  // Calculate totals
+  const totalMale = genderArrivals.Male + genderDepartures.Male;
+  const totalFemale = genderArrivals.Female + genderDepartures.Female;
+  const total = totalMale + totalFemale;
+
+  // Update text inside the chart card
+  const summaryText = `Males: ${(totalMale / total * 100).toFixed(1)}% | Females: ${(totalFemale / total * 100).toFixed(1)}%`;
+  document.getElementById("genderSummary").textContent = summaryText;
+
+  // Prepare data for the pie chart
+  const chartData = [
+    genderArrivals.Male,
+    genderDepartures.Male,
+    genderArrivals.Female,
+    genderDepartures.Female,
+  ];
+
+  return new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels: [
+        "Male Arrivals",
+        "Male Departures",
+        "Female Arrivals",
+        "Female Departures",
+      ],
+      datasets: [
+        {
+          data: chartData,
+          backgroundColor: [
+            "rgba(54, 162, 235, 0.8)", // Light blue for Male Arrivals
+            "rgba(54, 162, 235, 0.5)", // Dark blue for Male Departures
+            "rgba(255, 99, 132, 0.8)", // Light pink for Female Arrivals
+            "rgba(255, 99, 132, 0.5)", // Dark pink for Female Departures
+          ],
+          borderColor: [
+            "rgba(54, 162, 235, 1)",
+            "rgba(54, 162, 235, 1)",
+            "rgba(255, 99, 132, 1)",
+            "rgba(255, 99, 132, 1)",
+          ],
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "top" },
+        tooltip: {
+          callbacks: {
+            label: (tooltipItem) => {
+              const value = tooltipItem.raw;
+              const percentage = ((value / total) * 100).toFixed(1);
+              return `${tooltipItem.label}: ${value.toLocaleString()} (${percentage}%)`;
+            },
+          },
+        },
+        datalabels: {
+          formatter: (value, context) => {
+            const percentage = ((value / total) * 100).toFixed(1);
+            return `${percentage}%`; // Display percentage on the chart
+          },
+          color: "#fff",
           font: {
             weight: "bold",
           },
@@ -211,6 +326,9 @@ const plotBarChart = (ctx, data) => {
   // Calculate totals for percentage calculations
   const totalByGroup = ageGroups.map((_, i) => barArrivals[i] + barDepartures[i]);
 
+  // Check if there is only one age group
+  const isSingleAgeGroup = ageGroups.length === 1;
+
   return new Chart(ctx, {
     type: "bar",
     data: {
@@ -248,11 +366,15 @@ const plotBarChart = (ctx, data) => {
           },
         },
         datalabels: {
+          display: isSingleAgeGroup, // Only show labels if there's one age group
           formatter: (value, context) => {
-            const groupIndex = context.dataIndex;
-            const total = totalByGroup[groupIndex];
-            const percentage = ((value / total) * 100).toFixed(1); // Calculate percentage
-            return `${percentage}%`; // Display percentage on the bar
+            if (isSingleAgeGroup) {
+              const groupIndex = context.dataIndex;
+              const total = totalByGroup[groupIndex];
+              const percentage = ((value / total) * 100).toFixed(1); // Calculate percentage
+              return `${percentage}%`; // Display percentage on the bar
+            }
+            return null; // No label otherwise
           },
           color: "#fff", // White text for contrast
           font: { weight: "bold" },
@@ -274,6 +396,7 @@ const plotBarChart = (ctx, data) => {
     plugins: [ChartDataLabels], // Enable DataLabels plugin
   });
 };
+
 
 
 
@@ -315,6 +438,12 @@ const initializeCharts = (dataset) => {
   const doughnutChart = plotMigrationDirectionDoughnutChart(doughnutChartCtx, filteredData);
   chartManager.addChart(doughnutChart);
 
+  // Initialize Gender Pie Chart
+  const genderPieChartCtx = document.getElementById("genderPieChart").getContext("2d");
+  const genderPieChart = plotGenderPieChart(genderPieChartCtx, filteredData);
+  chartManager.addChart(genderPieChart);
+
+
   // Update dashboard cards
   updateDashboardCards(filteredData);
 };
@@ -343,6 +472,9 @@ document.getElementById("filterButton").addEventListener("click", () => {
 
   const doughnutChartCtx = document.getElementById("directionDoughnutChart").getContext("2d");
   chartManager.addChart(plotMigrationDirectionDoughnutChart(doughnutChartCtx, filteredData));
+
+  const genderPieChartCtx = document.getElementById("genderPieChart").getContext("2d");
+  chartManager.addChart(plotGenderPieChart(genderPieChartCtx, filteredData));
 
   // Update dashboard cards
   updateDashboardCards(filteredData);

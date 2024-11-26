@@ -10,19 +10,24 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card mt-3" id="pie-chart">
+            <div class="card" id="pie-chart">
                 <div class="card-body">
                     <h5 class="card-title">Migration Proportions by Direction</h5>
+                    <p id="netMigrationPercentageText">
+                        Net Migration:
+                        <span id="netMigrationPercentage" style="font-weight: bold;">0.0%</span>
+                    </p>
                     <canvas id="directionDoughnutChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row mb-4">
         <div class="col-md-4">
-            <div class="card mt-3">
+            <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Migration Proportions by Gender</h5>
+                    <p id="genderSummary" class="text-center text-muted"></p>
                     <canvas id="genderPieChart"></canvas>
                 </div>
             </div>
