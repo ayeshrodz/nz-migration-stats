@@ -69,14 +69,18 @@ const plotMigrationDirectionDoughnutChart = (ctx, data) => {
   const directionStats = { Arrivals: 0, Departures: 0 };
 
   data.direction.forEach((direction, i) => {
-    directionStats[direction] += data.estimate[i];
+    if (direction === "Arrivals") {
+      directionStats["Arrivals"] += data.estimate[i];
+    } else if (direction === "Departures") {
+      directionStats["Departures"] += data.estimate[i];
+    }
   });
 
-  const total = Object.values(directionStats).reduce((sum, val) => sum + val, 0);
+  const totalStat = Object.values(directionStats).reduce((sum, val) => sum + val, 0);
 
   // Calculate net migration percentage (+/-)
   const netMigrationPercentage = (
-    ((directionStats.Arrivals - directionStats.Departures) / total) *
+    ((directionStats.Arrivals - directionStats.Departures) / totalStat) *
     100
   ).toFixed(1);
 
@@ -113,7 +117,7 @@ const plotMigrationDirectionDoughnutChart = (ctx, data) => {
             label: (tooltipItem) => {
               // Add a percentage to the tooltip
               const value = tooltipItem.raw;
-              const percentage = ((value / total) * 100).toFixed(1); // Calculate percentage
+              const percentage = ((value / totalStat) * 100).toFixed(1); // Calculate percentage
               return `${tooltipItem.label}: ${value.toLocaleString()} (${percentage}%)`;
             },
           },
@@ -121,7 +125,7 @@ const plotMigrationDirectionDoughnutChart = (ctx, data) => {
         datalabels: {
           color: "#fff", // Text color
           formatter: (value, context) => {
-            const percentage = ((value / total) * 100).toFixed(1); // Calculate percentage
+            const percentage = ((value / totalStat) * 100).toFixed(1); // Calculate percentage
             return `${percentage}%`; // Display percentage inside the chart
           },
           font: {
