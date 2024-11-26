@@ -28,38 +28,36 @@
   </head>
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-sm bg-body-tertiary">
       <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'dashboard' %}">NZMD</a>
+        <a class="navbar-brand" href="#">New Zealand Migration Dashboard</a>
         <button class="navbar-toggler"
                 type="button"
                 data-bs-toggle="collapse"
-                data-bs-target="#navbarNav"
-                aria-controls="navbarNav"
+                data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent"
                 aria-expanded="false"
                 aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
-            </li>
-            {% comment %} <li class="nav-item">
-              <a class="nav-link" href="{% url 'data_display' %}">Demographic Data</a>
-            </li> {% endcomment %}
-          </ul>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <div class="ms-auto">{% include 'data_app/filters.html' %}</div>
         </div>
       </div>
     </nav>
     <!-- Main Content -->
-    <div class="container d-flex flex-column align-items-center mt-5">
+    <div class="container-fluid d-flex flex-column align-items-center">
       {% block content %}
       {% endblock content %}
     </div>
     <!-- Footer -->
     <footer class="text-center mt-auto py-3 bg-light">
-      <p>&copy; 2024 Migration Dashboard | All rights reserved.</p>
+      <p>
+        &copy; 2024 New Zealand Migration Dashboard | All rights reserved |
+        <a href="https://github.com/ayeshrodz/nz-migration-stats"
+           target="_blank"
+           rel="noopener noreferrer">GitHub Code</a>
+      </p>
     </footer>
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>

@@ -2,12 +2,12 @@
 {% load static %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-    <div class="container">
-        <h1 class="mb-4 text-center">New Zealand Migration Dashboard</h1>
-        <h4 class="mb-4 text-center">Demographic Based Statistics</h4>
-        <br />
+    <div class="container-fluid">
+        {% comment %} <h1 class="text-center">NZ Migration Dashboard</h1> {% endcomment %}
+        {% comment %} <h4 class="mb-4 text-center">Demographic Based Statistics</h4> {% endcomment %}
+        {% comment %} <br /> {% endcomment %}
         <!-- Include Filters -->
-        {% include 'data_app/filters.html' %}
+        {% comment %} {% include 'data_app/filters.html' %} {% endcomment %}
         <br />
         <!-- Include Graphs -->
         {% include 'data_app/graphs.html' %}
