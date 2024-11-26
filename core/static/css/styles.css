@@ -21,9 +21,15 @@
   .card {
     text-align: center;
     font-size: 1.2em;
+    border-radius: 15px !important; /* Add !important to override any conflicting styles */
+    overflow: hidden;
   }
+
   .card .card-text {
     font-size: 1.8em;
     font-weight: bold;
   }
-  
+
+  #pie-charts .card-body canvas {
+    height: 50px !important; /* Adjust height as per your preference */
+  }

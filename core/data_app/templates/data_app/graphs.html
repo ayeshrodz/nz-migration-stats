@@ -1,7 +1,7 @@
 <div id="graphs">
-    <div class="row">
+    <div class="row mt-2">
         <!-- Graph 1: Arrivals and Departures Over Time -->
-        <div class="col-md-6">
+        <div class="col-md-8">
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="card-title">Arrivals and Departures Over Time</h5>
@@ -9,9 +9,27 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-4">
+            <div class="card mt-3" id="pie-chart">
+                <div class="card-body">
+                    <h5 class="card-title">Migration Proportions by Direction</h5>
+                    <canvas id="directionDoughnutChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Migration Proportions by Gender</h5>
+                    <canvas id="genderPieChart"></canvas>
+                </div>
+            </div>
+        </div>
         <!-- Graph 2: Migrant Distribution by Age Group and Direction -->
-        <div class="col-md-6">
-            <div class="card mb-4">
+        <div class="col-md-8">
+            <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Migrant Distribution by Age Group and Direction</h5>
                     <canvas id="stackedBarChart"></canvas>
@@ -22,3 +40,4 @@
 </div>
 <!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
