@@ -75,7 +75,7 @@ Before you can run this application, make sure you have the following installed 
 6. **Load Initial Data** (Optional)  
    If there is a fixture file available, load it into the database:
    ```bash
-   python manage.py loaddata data.json
+   python manage.py loaddata
    ```
 
 7. **Run the Development Server**  
